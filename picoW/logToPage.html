@@ -28,9 +28,15 @@
         </select> | <br>
 
         LED: <input type="button" id="led" value="LED"> | 
+        <div>
+            <input type="button" id="Temperature" value="Get Temperature"> 
+            <div id="Tmp"></div> 
+        </div>
+        <div>
+            <input type="button" value="Monitor Temperature: OFF" id="TMonitor"> every <input type="number" id="TMonitorTimestep" value="10"> seconds
+            <div id="TMonitorVal"></div>
+        </div>
         
-        <input type="button" id="Temperature" value="Get Temperature"> 
-        <span id="Tmp"></span> |
 
     <div>
 
@@ -143,23 +149,22 @@
     TButton = d.getElementById("Temperature");
     TButton.addEventListener("click", getT);
 
-    function getT(graph=false){
+    function getT(graph=false, monitor=false){
         let xR = new XMLHttpRequest();
         xR.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
                 
                 console.log("Server Response:", this.responseText);
                 data = JSON.parse(this.responseText);
-                let txt = "";
-                t.push(Date.now())
-                for (let i=0; i<data['value'].length; i++){
-                    let v = parseFloat(data['value'][i]).toFixed(1);
-                    
-                    T[i].push(v);
+                let t = new Date();
+                let txt = `${t.toLocaleString("en-US")}: `;
+                for (let i=0; i<data.length; i++){
+                    let c = parseFloat(data[i]['value']).toFixed(1);
+                    let f = C2F(c).toFixed(1);
+                    let units = data[i]['u'];
                     txt += '<span class="dataOutput">';
-                    txt += ` S[${i}]: ${v} ${data['units']} (${C2F(v).toFixed(1)} °F) |`;
-                    txt += '</span>'
-                    if (graph) { doGraph();}
+                    txt += ` S[${i}]: ${c} ${units} (${f} °F) |`;
+                    txt += '</span>';
                 }
                 Tmp.innerHTML = txt;
             }
@@ -169,6 +174,33 @@
         xR.open("POST", "T", true);
         xR.send(JSON.stringify(data));
     }
+
+    l_monitor_T = false;
+    tMonitorID = -1;
+    tMonitor = d.getElementById("TMonitor");
+    tMonitor.addEventListener("click", function(){
+        let dtInput = d.getElementById("TMonitorTimestep");
+        let dt = parseFloat(dtInput.value);
+        // dtInput.disabled = l_monitor_T ? true : false;
+
+        l_monitor_T = l_monitor_T ? false : true;
+        if (l_monitor_T) {
+            t = "ON";
+            dtInput.disabled = true;
+            tMonitorID = setInterval(getT, dt*1000);
+        } else {
+            t = "OFF";
+            dtInput.disabled = false;
+            clearInterval(tMonitorID);
+        }
+        // let t = l_monitor_T ? "ON" : "OFF";
+        this.value = `Monitor Temperature: ${t}`;
+
+        // let dtInput = d.getElementById("TMonitorTimestep");
+        // let dt = parseFloat(dtInput.value);
+        // dtInput.disabled = l_monitor_T ? true : false;
+        console.log(`dt: ${dt} ${dtInput.disabled}`);
+    })
 
 
     function createChart(){

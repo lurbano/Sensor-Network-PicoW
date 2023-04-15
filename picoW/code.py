@@ -1,5 +1,3 @@
-
-
 import os
 import time
 import ipaddress
@@ -26,16 +24,18 @@ from adafruit_httpserver.mime_type import MIMEType
 from DS18x20.uDS18x20m import *
 
 # Parameters
-sensorID = "beesWax"
-wifiName = "TFS Students"
-wifiPass = "Fultoneagles"
+picoID = "beesWax"
+wifiName = "Wifipower"
+wifiPass = "defacto1"
 
 # DS18x20 Wiring:
 #   Red: 3.3 V (3V0)
 #   Black: Ground
 #   Yellow: Data: GP5 (default)
+sensorTypes = []
 
 thermo = uDS18X20(board.GP5)
+sensorTypes.append(thermo)
 T = thermo.readAll()
 print(f"Temperature = {T}")
 
@@ -110,12 +110,16 @@ def ledButton(request: HTTPRequest):
 
 @server.route("/T", method=HTTPMethod.POST)
 def getTemperature(request: HTTPRequest):
-    T = thermo.readAll()
+    sensor = thermo
+    T = sensor.readAll()
     print(f"Temperature = {T}")
-    rData = {}
-    rData["id"] = sensorID
-    rData['value'] = T
-    rData['units'] = '°C'
+    rData = []
+    for i in range(len(T)):
+        rData.append({})
+        rData[-1]["picoID"] = picoID
+        rData[-1]["type"] = thermo.type
+        rData[-1]["u"] = thermo.units
+        rData[-1]['value'] = T[i]
     with HTTPResponse(request) as response:
         response.send(json.dumps(rData))
 
@@ -236,5 +240,7 @@ while True:
     
 
     
+
+
 
 

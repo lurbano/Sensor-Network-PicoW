@@ -14,9 +14,10 @@ def c_to_f(temp):
 
 # thermometer class
 class uDS18X20:
-    def __init__(self, dataPin = board.GP5, units="C"):
+    def __init__(self, dataPin = board.GP5, units="°C", type="thermometer"):
         # keep track of units
         self.units = units
+        self.type = type
 
         # one-wire bus for DS18B20
         self.ow_bus = OneWireBus(dataPin)
@@ -32,35 +33,45 @@ class uDS18X20:
     def read(self):
 
         T = self.sensors[0].temperature
-        if self.units == "F":
-            return c_to_f(T)
-        else:
-            return T
+        return T
         
     def readAll(self):
         T = []
         for sensor in self.sensors:
             T.append(sensor.temperature)
         return T
+    
+    def writeLine(self, t, fname):
+        with open(fname, "a") as logFile:
+            txt = f'{t}'
+            for T in self.readAll():
+                txt += f',{T}'
+            print(txt)
+            logFile.write(txt+"\n")
 
 
-    def log_to_file(self, fname="log.dat", dt=5):
+    def log_to_file(self, fname="log.csv", dt=5):
         startTime = time.monotonic() 
         mesTime = startTime
+        print(f"startTime: {startTime}")
+        print(mesTime + dt)
+        
+        self.writeLine(0, fname)
+            
 
         while True:
             try:
                 currentTime = time.monotonic()
-                if (mesTime + dt) >= currentTime:
+                if (mesTime + dt) <= currentTime:
                     mesTime = currentTime
-                    T = self.read()
                     runTime = mesTime - startTime
-                    print(runTime, T)
-                    with open(fname, "a") as logFile:
-                        logFile.write(f'{runTime},{T}')
+                    self.writeLine(runTime, fname)
                     
-            except Exception:
+            except Exception as E:
+                print(E)
                 continue
+
+
 
 
 
