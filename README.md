@@ -6,4 +6,6 @@ The network coordinator lets you do data logging by telling the Picos how to log
 
 # Setup
 
-* Copy .uf2 circuitpython/ ("...pi_pico_w....uf2") onto picoW.
+* Copy .uf2 circuitpython/ ("...pi_pico_w....uf2") onto the RPi Pico.
+
+* Copy contents of picoW folder onto CIRCUITPY
