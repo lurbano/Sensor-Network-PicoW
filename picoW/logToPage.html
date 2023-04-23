@@ -78,6 +78,14 @@
         return (parseFloat(c)*9/5)+32;
     }
 
+    // var dset = {
+    //     label: "Dataset Label",
+    //     data = [],
+    //     borderColor: '#006eb8',
+    //     backgroundColor: '#9BD0F5',
+    //     showLine: true,
+    // }
+
     const ctx = d.getElementById('TGraph');
     var dataT = {
         datasets: [
@@ -167,6 +175,11 @@
                     txt += '</span>';
                 }
                 Tmp.innerHTML = txt;
+
+                // Graph
+                if (l_monitor_T) {
+                    
+                }
             }
         }
         let data = {};
@@ -174,6 +187,7 @@
         xR.open("POST", "T", true);
         xR.send(JSON.stringify(data));
     }
+
 
     l_monitor_T = false;
     tMonitorID = -1;
@@ -187,6 +201,7 @@
         if (l_monitor_T) {
             t = "ON";
             dtInput.disabled = true;
+            getT();
             tMonitorID = setInterval(getT, dt*1000);
         } else {
             t = "OFF";
@@ -203,82 +218,82 @@
     })
 
 
-    function createChart(){
-        let xR = new XMLHttpRequest();
-        xR.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) {
+    // function createChart(){
+    //     let xR = new XMLHttpRequest();
+    //     xR.onreadystatechange = function() {
+    //         if (this.readyState == 4 && this.status == 200) {
                 
-                //console.log("Server Response:", this.responseText);
-                data = JSON.parse(this.responseText);
-                // console.log("T_data:", data['T_data']);
-                // console.log("typeof(chart)", typeof chart);
+    //             //console.log("Server Response:", this.responseText);
+    //             data = JSON.parse(this.responseText);
+    //             // console.log("T_data:", data['T_data']);
+    //             // console.log("typeof(chart)", typeof chart);
 
-                updateParams(data['params']);
-                updateGraph(data['state']);
+    //             updateParams(data['params']);
+    //             updateGraph(data['state']);
 
-            }
-        }
-        let data = {};
-        data["action"] = "getAll";
-        xR.open("POST", "getChartData", true);
-        xR.setRequestHeader("Cache-Control", "no-cache, no-store, max-age=0")
-        console.log("Sending request for Temperature data.")
-        xR.send(JSON.stringify(data));
-    }
+    //         }
+    //     }
+    //     let data = {};
+    //     data["action"] = "getAll";
+    //     xR.open("POST", "getChartData", true);
+    //     xR.setRequestHeader("Cache-Control", "no-cache, no-store, max-age=0")
+    //     console.log("Sending request for Temperature data.")
+    //     xR.send(JSON.stringify(data));
+    // }
 
-    function updateParams(params){
-        for (const [key, value] of Object.entries(params)) {
-            // console.log(`${key}: ${value}`);
-            d.getElementById(key).innerHTML = value;
-        }
-    }
+    // function updateParams(params){
+    //     for (const [key, value] of Object.entries(params)) {
+    //         // console.log(`${key}: ${value}`);
+    //         d.getElementById(key).innerHTML = value;
+    //     }
+    // }
 
-    function updateGraph(state){
-        let T_data = state['T_data'] 
-        let T_long = state['T_long']
-        let setT = state['setT']
-        T_data_set = [];
+    // function updateGraph(state){
+    //     let T_data = state['T_data'] 
+    //     let T_long = state['T_long']
+    //     let setT = state['setT']
+    //     T_data_set = [];
 
-        let runTime = T_data[T_data.length-1][0];
+    //     let runTime = T_data[T_data.length-1][0];
 
-        if (runTime > 60*60){
-            divisor = 60*60; 
-            tUnit="hrs";
-        } else if (runTime > 60) {
-            divisor = 60; 
-            tUnit="min";
-        } else {
-            divisor = 1; 
-            tUnit="sec";
-        }
-        let d = {}
-        for (let i=0; i<T_long.length; i++){
-            let d = {
-                x: T_long[i][0]/divisor, 
-                y: T_long[i][1]
-            };
-            T_data_set.push(d);
-        }
-        for (let i=0; i<T_data.length; i++){
-            d = {
-                x: T_data[i][0]/divisor, 
-                y: T_data[i][1]
-            };
-            T_data_set.push(d);
-        }
+    //     if (runTime > 60*60){
+    //         divisor = 60*60; 
+    //         tUnit="hrs";
+    //     } else if (runTime > 60) {
+    //         divisor = 60; 
+    //         tUnit="min";
+    //     } else {
+    //         divisor = 1; 
+    //         tUnit="sec";
+    //     }
+    //     let d = {}
+    //     for (let i=0; i<T_long.length; i++){
+    //         let d = {
+    //             x: T_long[i][0]/divisor, 
+    //             y: T_long[i][1]
+    //         };
+    //         T_data_set.push(d);
+    //     }
+    //     for (let i=0; i<T_data.length; i++){
+    //         d = {
+    //             x: T_data[i][0]/divisor, 
+    //             y: T_data[i][1]
+    //         };
+    //         T_data_set.push(d);
+    //     }
         
-        console.log('T_data_set:', T_data_set);
+    //     console.log('T_data_set:', T_data_set);
 
-        let setT_data = [
-            {x:0,y:setT}, 
-            {x:d['x'], y:setT}
-        ];
-        chart.data.datasets[1]['data'] = setT_data;
+    //     let setT_data = [
+    //         {x:0,y:setT}, 
+    //         {x:d['x'], y:setT}
+    //     ];
+    //     chart.data.datasets[1]['data'] = setT_data;
         
-        chart.data.datasets[0]['data'] = T_data_set;
-        chart.options.scales.x.text = `time (${tUnit})`;
-        chart.update();
-    }
+    //     chart.data.datasets[0]['data'] = T_data_set;
+    //     chart.options.scales.x.text = `time (${tUnit})`;
+    //     chart.update();
+    // }
 
 
     //NEW CHARTING
