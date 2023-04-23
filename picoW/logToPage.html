@@ -182,11 +182,13 @@
                     if (l_graph_setup){
                         l_graph_setup = false;
                         for (let i=0; i<data.length; i++){
+                            let c = `#${Math.floor(Math.random()/i * 0xffffff).toString(16).padEnd(6, '0')}`;
                             let d = {
                                 label: `S[${i}]: ${data[i]['u']}`,
                                 data: [{x:0, y:data[i]['value']}],
-                                borderColor: '#006eb8',
-                                backgroundColor: '#9BD0F5',
+                                pointBorderColor: '#006eb8',
+                                backgroundColor: c,
+                                borderColor: c,
                                 showLine: true,
                             }
                             monitorStartTime = Date.now();
