@@ -78,31 +78,32 @@
         return (parseFloat(c)*9/5)+32;
     }
 
-    // var dset = {
-    //     label: "Dataset Label",
-    //     data = [],
-    //     borderColor: '#006eb8',
-    //     backgroundColor: '#9BD0F5',
-    //     showLine: true,
-    // }
+    var l_graph_setup = true;
+    var dset = {
+        label: "Dataset Label",
+        data: [],
+        borderColor: '#006eb8',
+        backgroundColor: '#9BD0F5',
+        showLine: true,
+    }
 
     const ctx = d.getElementById('TGraph');
     var dataT = {
         datasets: [
-            {
-                label: "S[0] (°C)",
-                data: [],
-                borderColor: '#006eb8',
-                backgroundColor: '#9BD0F5',
-                showLine: true,
-            },
-            {
-                label: "s[1] (°C)",
-                data: [],
-                borderColor: '#4b8500',
-                backgroundColor: '#4b8500',
-                showLine: true,
-            }
+            // {
+            //     label: "S[0] (°C)",
+            //     data: [],
+            //     borderColor: '#006eb8',
+            //     backgroundColor: '#9BD0F5',
+            //     showLine: true,
+            // },
+            // {
+            //     label: "s[1] (°C)",
+            //     data: [],
+            //     borderColor: '#4b8500',
+            //     backgroundColor: '#4b8500',
+            //     showLine: true,
+            // }
         ]
     }
     var chart = new Chart(ctx, {
@@ -178,7 +179,32 @@
 
                 // Graph
                 if (l_monitor_T) {
-                    
+                    if (l_graph_setup){
+                        l_graph_setup = false;
+                        for (let i=0; i<data.length; i++){
+                            let d = {
+                                label: `S[${i}]: ${data[i]['u']}`,
+                                data: [{x:0, y:data[i]['value']}],
+                                borderColor: '#006eb8',
+                                backgroundColor: '#9BD0F5',
+                                showLine: true,
+                            }
+                            monitorStartTime = Date.now();
+                            chart.data.datasets.push(d);
+                            // console.log("dset: ",i, d);
+                        }
+                        chart.options.scales.x.text = `Time`;
+                        chart.update();
+                    } else {
+                        for (let i=0; i<data.length; i++){
+                            let dt = Date.now() - monitorStartTime;
+                            chart.data.datasets[i].data.push(
+                                {x: dt, y: data[i]['value']}
+                            );
+                        }
+                        chart.update();
+                    }
+                 
                 }
             }
         }
@@ -191,6 +217,7 @@
 
     l_monitor_T = false;
     tMonitorID = -1;
+    monitorStartTime = 0;
     tMonitor = d.getElementById("TMonitor");
     tMonitor.addEventListener("click", function(){
         let dtInput = d.getElementById("TMonitorTimestep");
